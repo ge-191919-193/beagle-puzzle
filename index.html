@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>猜猜我是誰？🐶 米格魯拼圖</title>
+  <style>
+    body {
+      font-family: "Arial", sans-serif;
+      background: #fffbe6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      margin-top: 30px;
+      color: #444;
+    }
+    #cover, #game, #congrats {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+    #cover.show, #game.show, #congrats.show {
+      display: flex;
+    }
+    #puzzle {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 2px;
+      margin: 20px;
+    }
+    .tile {
+      width: 100px;
+      height: 100px;
+      background-size: 300px 300px;
+      border: 1px solid #ccc;
+      cursor: grab;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #fcae60;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    #moves {
+      margin: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+    .confetti {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>猜猜我是誰？🐶</h1>
+
+  <div id="cover" class="show">
+    <p>來挑戰米格魯的拼圖吧！完成後會有驚喜唷～</p>
+    <button onclick="startGame()">開始挑戰 ▶️</button>
+  </div>
+
+  <div id="game">
+    <div id="moves">滑動次數：0</div>
+    <div id="puzzle"></div>
+  </div>
+
+  <div id="congrats">
+    <img src="beagle.png" alt="米格魯" width="300"/>
+    <h2>你完成囉～汪汪！🎉</h2>
+    <div id="confetti" class="confetti"></div>
+  </div>
+
+  <script>
+    const puzzle = document.getElementById("puzzle");
+    const game = document.getElementById("game");
+    const cover = document.getElementById("cover");
+    const congrats = document.getElementById("congrats");
+    const movesDisplay = document.getElementById("moves");
+    let moves = 0;
+
+    let positions = [...Array(9).keys()];
+    let emptyIndex = 8;
+
+    function startGame() {
+      cover.classList.remove("show");
+      game.classList.add("show");
+      shuffle(positions);
+      render();
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      if (arr.indexOf(8) === -1) arr[8] = 8;
+      emptyIndex = arr.indexOf(8);
+    }
+
+    function render() {
+      puzzle.innerHTML = "";
+      positions.forEach((pos, index) => {
+        if (pos === 8) {
+          const empty = document.createElement("div");
+          empty.className = "tile";
+          empty.style.visibility = "hidden";
+          puzzle.appendChild(empty);
+        } else {
+          const tile = document.createElement("div");
+          tile.className = "tile";
+          const x = pos % 3, y = Math.floor(pos / 3);
+          tile.style.backgroundImage = "url('beagle.png')";
+          tile.style.backgroundPosition = `-${x * 100}px -${y * 100}px`;
+          tile.onclick = () => move(index);
+          puzzle.appendChild(tile);
+        }
+      });
+    }
+
+    function move(index) {
+      const valid = [emptyIndex - 1, emptyIndex + 1, emptyIndex - 3, emptyIndex + 3];
+      if (valid.includes(index)) {
+        [positions[index], positions[emptyIndex]] = [positions[emptyIndex], positions[index]];
+        emptyIndex = index;
+        moves += 1;
+        movesDisplay.textContent = "滑動次數：" + moves;
+        render();
+        checkWin();
+      }
+    }
+
+    function checkWin() {
+      if (positions.every((v, i) => v === i)) {
+        game.classList.remove("show");
+        congrats.classList.add("show");
+        launchConfetti();
+      }
+    }
+
+    function launchConfetti() {
+      const canvas = document.createElement("canvas");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      document.getElementById("confetti").appendChild(canvas);
+      const ctx = canvas.getContext("2d");
+
+      let pieces = Array.from({ length: 100 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        size: Math.random() * 6 + 4,
+        speed: Math.random() * 2 + 1,
+        color: `hsl(${Math.random() * 360}, 100%, 70%)`
+      }));
+
+      function update() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          p.y += p.speed;
+          if (p.y > canvas.height) p.y = -p.size;
+        });
+        requestAnimationFrame(update);
+      }
+
+      update();
+    }
+  </script>
+</body>
+</html>
