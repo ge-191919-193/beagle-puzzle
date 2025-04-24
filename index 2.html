@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>拼圖動物宇宙</title>
+  <style>
+    body {
+      background-color: #fdf6e3;
+      font-family: "Helvetica Neue", sans-serif;
+      text-align: center;
+      padding: 2em;
+    }
+    h1 {
+      font-size: 2em;
+    }
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+    .tile {
+      width: 100px;
+      height: 100px;
+      background-color: #ccc;
+      line-height: 100px;
+      font-size: 2em;
+    }
+    #complete-image {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>😉</h1>
+  <p>歡迎來到拼圖動物宇宙，每關完成後會有小驚喜喔！</p>
+  <button onclick="startGame()">開始挑戰 ▶️</button>
+  <div id="game-board">
+    <div class="tile">1</div><div class="tile">2</div><div class="tile">3</div>
+    <div class="tile">4</div><div class="tile">5</div><div class="tile">6</div>
+    <div class="tile">7</div><div class="tile">8</div><div class="tile"></div>
+  </div>
+  <div id="complete-image">
+    <img src="beagle.png" alt="完成圖片" width="300"/>
+  </div>
+
+  <script>
+    function startGame() {
+      alert("開始挑戰！遊戲初始化中...");
+    }
+  </script>
+</body>
+</html>
