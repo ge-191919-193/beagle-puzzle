@@ -146,16 +146,6 @@
       game.classList.add("show");
       initLevel(currentLevel);
     }
-  
-document.addEventListener("keydown", function (e) {
-  if (e.key === "T" || e.key === "t") {
-    if (typeof completeCurrentLevel === "function") {
-      completeCurrentLevel();
-    } else {
-      alert("尚未定義 completeCurrentLevel 函式！");
-    }
-  }
-});
-</script>
+  </script>
 </body>
 </html>
