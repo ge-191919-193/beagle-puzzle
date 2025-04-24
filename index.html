@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>猜猜我是誰？多關卡拼圖</title>
+  <style>
+    body { font-family: Arial; background: #fffbe6; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+    h1 { margin: 20px; }
+    #game, #cover, #congrats { display: none; flex-direction: column; align-items: center; }
+    .show { display: flex !important; }
+    #puzzle { display: grid; gap: 2px; margin: 20px; }
+    .tile { width: 100px; height: 100px; background-size: 300px 300px; border: 1px solid #ccc; cursor: grab; }
+    button { padding: 10px 20px; font-size: 16px; background: #fcae60; color: white; border: none; border-radius: 8px; margin: 5px; cursor: pointer; }
+    #moves { font-size: 14px; color: #555; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>猜猜我是誰？🐾</h1>
+  <div id="cover" class="show">
+    <p>每一關都有不同的動物，挑戰看看你能認出幾個！</p>
+    <button onclick="startGame()">開始挑戰 ▶️</button>
+  </div>
+  <div id="game">
+    <div id="moves">滑動次數：0</div>
+    <div id="buttons">
+      <button onclick="shuffleTiles()">重新打亂 🔄</button>
+    </div>
+    <div id="puzzle"></div>
+  </div>
+  <div id="congrats">
+    <img id="animalImg" src="" width="300" />
+    <h2 id="messageText">你完成了～🎉</h2>
+    <button onclick="nextLevel()">下一關 ▶️</button>
+  </div>
+
+  <script>
+    const levels = [
+      { image: "beagle.png", rows: 3, columns: 3, message: "汪汪～好厲害，給你一根骨頭獎勵！" },
+      { image: "mouse.png", rows: 4, columns: 4, message: "吱吱！你也太會找我了吧～" }
+    ];
+    let currentLevel = 0;
+    let moves = 0;
+    let positions = [];
+    let emptyIndex = 0;
+
+    const puzzle = document.getElementById("puzzle");
+    const cover = document.getElementById("cover");
+    const game = document.getElementById("game");
+    const congrats = document.getElementById("congrats");
+    const animalImg = document.getElementById("animalImg");
+    const messageText = document.getElementById("messageText");
+    const movesDisplay = document.getElementById("moves");
+
+    function startGame() {
+      cover.classList.remove("show");
+      game.classList.add("show");
+      initLevel(currentLevel);
+    }
+
+    function initLevel(levelIndex) {
+      const { rows, columns } = levels[levelIndex];
+      puzzle.style.gridTemplateColumns = `repeat(${columns}, 100px)`;
+      puzzle.style.gridTemplateRows = `repeat(${rows}, 100px)`;
+      const total = rows * columns;
+      positions = [...Array(total).keys()];
+      shuffle(positions);
+      emptyIndex = positions.indexOf(total - 1);
+      moves = 0;
+      updateMoves();
+      render();
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    function shuffleTiles() {
+      shuffle(positions);
+      emptyIndex = positions.indexOf(positions.length - 1);
+      moves = 0;
+      updateMoves();
+      render();
+    }
+
+    function updateMoves() {
+      movesDisplay.textContent = "滑動次數：" + moves;
+    }
+
+    function render() {
+      puzzle.innerHTML = "";
+      const { image, columns } = levels[currentLevel];
+      const total = positions.length;
+      positions.forEach((pos, i) => {
+        if (pos === total - 1) {
+          const blank = document.createElement("div");
+          blank.className = "tile";
+          blank.style.visibility = "hidden";
+          puzzle.appendChild(blank);
+        } else {
+          const tile = document.createElement("div");
+          tile.className = "tile";
+          const x = pos % columns;
+          const y = Math.floor(pos / columns);
+          tile.style.backgroundImage = `url('${image}')`;
+          tile.style.backgroundPosition = `-${x * 100}px -${y * 100}px`;
+          tile.onclick = () => move(i);
+          puzzle.appendChild(tile);
+        }
+      });
+    }
+
+    function move(i) {
+      const { columns } = levels[currentLevel];
+      const valid = [emptyIndex - 1, emptyIndex + 1, emptyIndex - columns, emptyIndex + columns];
+      if (valid.includes(i)) {
+        [positions[i], positions[emptyIndex]] = [positions[emptyIndex], positions[i]];
+        emptyIndex = i;
+        moves++;
+        updateMoves();
+        render();
+        checkWin();
+      }
+    }
+
+    function checkWin() {
+      if (positions.every((v, i) => v === i)) {
+        game.classList.remove("show");
+        congrats.classList.add("show");
+        animalImg.src = levels[currentLevel].image;
+        messageText.textContent = levels[currentLevel].message;
+      }
+    }
+
+    function nextLevel() {
+      currentLevel++;
+      if (currentLevel >= levels.length) {
+        alert("已完成全部關卡！🎉");
+        location.reload();
+        return;
+      }
+      congrats.classList.remove("show");
+      game.classList.add("show");
+      initLevel(currentLevel);
+    }
+  
+document.addEventListener("keydown", function (e) {
+  if (e.key === "T" || e.key === "t") {
+    if (typeof completeCurrentLevel === "function") {
+      completeCurrentLevel();
+    } else {
+      alert("尚未定義 completeCurrentLevel 函式！");
+    }
+  }
+});
+</script>
+</body>
+</html>
