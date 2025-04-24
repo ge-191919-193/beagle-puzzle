@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>😉 拼圖動物宇宙</title>
+  <style>
+    body { font-family: "Segoe UI", sans-serif; background: #fffbe9; margin: 0; padding: 2em; text-align: center; }
+    h1 { font-size: 2em; }
+    #game { margin-top: 1em; }
+    .grid { display: grid; gap: 2px; margin: auto; }
+    .tile {
+      background-size: cover;
+      background-position: center;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 1em;
+      padding: 0.5em 1em;
+      background: #f7a84c;
+      border: none;
+      color: white;
+      font-size: 1em;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>😉</h1>
+  <p>歡迎來到拼圖動物宇宙，每關完成後會有小驚喜喔！</p>
+  <button onclick="startGame()">開始挑戰 ▶️</button>
+  <div id="game"></div>
+
+  <script>
+    const imageSrc = "beagle.png";
+    const size = 3;
+    const gameDiv = document.getElementById("game");
+
+    function startGame() {
+      gameDiv.innerHTML = "";
+      const grid = document.createElement("div");
+      grid.className = "grid";
+      grid.style.gridTemplateColumns = `repeat(${size}, 100px)`;
+      grid.style.gridTemplateRows = `repeat(${size}, 100px)`;
+
+      for (let i = 0; i < size * size; i++) {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.style.width = "100px";
+        tile.style.height = "100px";
+        tile.style.backgroundImage = `url(${imageSrc})`;
+        tile.style.backgroundPosition = `${-(i % size) * 100}px ${-Math.floor(i / size) * 100}px`;
+        tile.style.backgroundSize = `${size * 100}px`;
+        grid.appendChild(tile);
+      }
+
+      gameDiv.appendChild(grid);
+    }
+  </script>
+</body>
+</html>
