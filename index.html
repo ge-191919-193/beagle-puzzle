@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>😉 拼圖動物宇宙</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #fffbe9; text-align: center; padding: 2em; }
+    .grid { display: grid; gap: 2px; margin: 20px auto; }
+    .tile {
+      width: 100px; height: 100px;
+      background-size: 300px 300px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: bold; color: #fff;
+    }
+    button {
+      margin: 10px; padding: 8px 16px;
+      font-size: 16px; background: #f7a84c; color: white;
+      border: none; border-radius: 6px; cursor: pointer;
+    }
+    #complete-img { display: none; max-width: 300px; margin-top: 20px; }
+    #congrats { display: none; font-size: 20px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>😉</h1>
+  <p>歡迎來到拼圖動物宇宙，每關完成後會有小驚喜喔！</p>
+  <button onclick="startGame()">開始挑戰 ▶️</button>
+  <div id="level-status"></div>
+  <div id="puzzle" class="grid"></div>
+  <img id="complete-img" />
+  <div id="congrats">🎉 你完成了所有關卡！</div>
+  <button id="reset" onclick="shuffleTiles()" style="display:none;">🔄 重新挑戰本關</button>
+
+  <script>
+    const levels = [
+      { image: 'beagle.png', rows: 3, columns: 3, message: '我是聰明的米格魯！汪汪！' },
+      { image: 'rabbit.png', rows: 3, columns: 3, message: '你找到我啦，小兔兔也來撒花囉～！' }
+    ];
+    let currentLevel = 0;
+    let tiles = [], emptyIndex = 8;
+
+    function startGame() {
+      document.querySelector("button").style.display = "none";
+      document.getElementById("reset").style.display = "inline-block";
+      loadLevel();
+    }
+
+    function loadLevel() {
+      const level = levels[currentLevel];
+      const puzzle = document.getElementById("puzzle");
+      document.getElementById("complete-img").style.display = "none";
+      document.getElementById("congrats").style.display = "none";
+      document.getElementById("level-status").innerText = `第 ${currentLevel + 1} 關 / 共 ${levels.length} 關`;
+
+      puzzle.style.gridTemplateColumns = `repeat(${level.columns}, 100px)`;
+      tiles = [];
+      for (let i = 0; i < 9; i++) tiles.push(i);
+      shuffleArray(tiles);
+      renderTiles();
+    }
+
+    function shuffleTiles() {
+      shuffleArray(tiles);
+      renderTiles();
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function renderTiles() {
+      const puzzle = document.getElementById("puzzle");
+      const level = levels[currentLevel];
+      puzzle.innerHTML = "";
+      emptyIndex = tiles.indexOf(8);
+
+      tiles.forEach((num, i) => {
+        const div = document.createElement("div");
+        div.className = "tile";
+        if (num < 8) {
+          div.style.backgroundImage = `url(${level.image})`;
+          div.style.backgroundPosition = `${-(num % 3) * 100}px ${-Math.floor(num / 3) * 100}px`;
+          div.onclick = () => tryMove(i);
+        } else {
+          div.style.background = "#eee";
+        }
+        puzzle.appendChild(div);
+      });
+    }
+
+    function tryMove(i) {
+      const validMoves = [emptyIndex - 1, emptyIndex + 1, emptyIndex - 3, emptyIndex + 3];
+      if (validMoves.includes(i)) {
+        [tiles[i], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[i]];
+        renderTiles();
+        if (isCompleted()) showCompletion();
+      }
+    }
+
+    function isCompleted() {
+      return tiles.every((val, i) => val === i);
+    }
+
+    function showCompletion() {
+      document.getElementById("complete-img").src = levels[currentLevel].image;
+      document.getElementById("complete-img").style.display = "block";
+      setTimeout(() => {
+        currentLevel++;
+        if (currentLevel < levels.length) {
+          loadLevel();
+        } else {
+          document.getElementById("congrats").style.display = "block";
+          document.getElementById("puzzle").innerHTML = "";
+        }
+      }, 1500);
+    }
+
+    document.addEventListener("keydown", e => {
+      if (e.key.toUpperCase() === "T") showCompletion();
+    });
+  </script>
+</body>
+</html>
